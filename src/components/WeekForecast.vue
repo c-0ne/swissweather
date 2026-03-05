@@ -10,8 +10,11 @@
           <span class="day-max">{{ day.max }}°</span>
           <span class="day-min">{{ day.min }}°</span>
         </span>
-        <div class="day-bar-wrapper">
-          <div class="day-bar" :style="{ width: day.precipPct + '%' }"></div>
+        <div class="rain-info">
+          <div class="day-bar-wrapper">
+            <div class="day-bar" :style="{ width: day.precipPct + '%' }"></div>
+          </div>
+          <span class="rain-chance">{{ day.precipPct }}%</span>
         </div>
         <span class="day-precip">{{ day.precip }}mm</span>
       </div>
@@ -114,38 +117,72 @@ const chartOptions = computed(() => {
 
 .day-row {
   display: grid;
-  grid-template-columns: 50px 30px 70px 1fr 40px;
+  grid-template-columns: 60px 35px 80px 1fr 50px;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   background: var(--bg);
 }
 
 .day-name { font-weight: 600; font-size: 0.9rem; }
-.day-icon { font-size: 1.2rem; text-align: center; }
-.day-range { display: flex; gap: 6px; font-size: 0.85rem; }
+.day-icon { font-size: 1.3rem; text-align: center; }
+.day-range { display: flex; gap: 8px; font-size: 0.9rem; }
 .day-max { color: #f97316; font-weight: 600; }
 .day-min { color: #60a5fa; }
+
+.rain-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
 
 .day-bar-wrapper {
   background: var(--border);
   border-radius: 4px;
-  height: 6px;
+  height: 8px;
   overflow: hidden;
+  flex: 1;
 }
 .day-bar {
   height: 100%;
-  background: #60a5fa;
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
   border-radius: 4px;
   transition: width 0.4s ease;
 }
 
-.day-precip { font-size: 0.78rem; color: var(--text-muted); text-align: right; }
+.rain-chance {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #60a5fa;
+  min-width: 36px;
+  text-align: right;
+}
+
+.day-precip {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: right;
+  min-width: 50px;
+}
 
 .chart-wrapper {
   border-radius: 10px;
   overflow: hidden;
   margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .day-row {
+    grid-template-columns: 50px 30px 70px 1fr 45px;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .day-name { font-size: 0.85rem; }
+  .day-icon { font-size: 1.1rem; }
+  .day-range { font-size: 0.85rem; gap: 6px; }
+  .rain-chance { font-size: 0.8rem; min-width: 32px; }
+  .day-precip { font-size: 0.78rem; min-width: 45px; }
 }
 </style>

@@ -15,7 +15,7 @@ async function fetchForecast(lat, lon) {
     latitude: lat,
     longitude: lon,
     current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code,apparent_temperature',
-    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weather_code',
+    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weather_code,sunrise,sunset',
     hourly: 'temperature_2m,precipitation_probability,precipitation',
     timezone: 'auto',
     forecast_days: '7',
@@ -31,7 +31,7 @@ async function fetchHistorical(lat, lon, date) {
     longitude: lon,
     start_date: date,
     end_date: date,
-    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum',
+    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max',
     timezone: 'auto',
   })
   const res = await fetch(`${BASE_HISTORICAL}?${params}`)
@@ -75,6 +75,13 @@ export function useWeather() {
     historicalData.value = null
     comparisonData.value = []
 
+    // Update URL with location
+    const url = new URL(window.location)
+    url.searchParams.set('location', location.name)
+    url.searchParams.set('lat', location.lat)
+    url.searchParams.set('lon', location.lon)
+    window.history.pushState({}, '', url)
+
     try {
       const { lat, lon } = location
       const yearAgo = getYearAgoDate()
@@ -103,6 +110,23 @@ export function useWeather() {
       error.value = e.message
     } finally {
       loading.value = false
+    }
+  }
+
+  // Load location from URL on init
+  function loadLocationFromURL() {
+    const params = new URLSearchParams(window.location.search)
+    const name = params.get('location')
+    const lat = params.get('lat')
+    const lon = params.get('lon')
+
+    if (name && lat && lon) {
+      const location = {
+        name,
+        lat: parseFloat(lat),
+        lon: parseFloat(lon),
+      }
+      loadWeather(location)
     }
   }
 
@@ -190,5 +214,6 @@ export function useWeather() {
     stormAlerts,
     searchLocations,
     loadWeather,
+    loadLocationFromURL,
   }
 }

@@ -31,6 +31,23 @@
         <span class="stat-label">Humidity</span>
       </div>
     </div>
+
+    <div v-if="sunrise && sunset" class="cw-sun">
+      <div class="sun-item">
+        <span class="sun-icon">🌅</span>
+        <div class="sun-info">
+          <span class="sun-label">Sunrise</span>
+          <span class="sun-time">{{ sunrise }}</span>
+        </div>
+      </div>
+      <div class="sun-item">
+        <span class="sun-icon">🌇</span>
+        <div class="sun-info">
+          <span class="sun-label">Sunset</span>
+          <span class="sun-time">{{ sunset }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -45,6 +62,24 @@ const props = defineProps({
 
 const current = computed(() => props.forecast.current)
 const weatherInfo = computed(() => getWeatherInfo(current.value.weather_code))
+
+const sunrise = computed(() => {
+  const sunriseTime = props.forecast.daily?.sunrise?.[0]
+  if (!sunriseTime) return null
+  return new Date(sunriseTime).toLocaleTimeString('de-CH', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+})
+
+const sunset = computed(() => {
+  const sunsetTime = props.forecast.daily?.sunset?.[0]
+  if (!sunsetTime) return null
+  return new Date(sunsetTime).toLocaleTimeString('de-CH', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+})
 </script>
 
 <style scoped>
@@ -70,6 +105,7 @@ const weatherInfo = computed(() => getWeatherInfo(current.value.weather_code))
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+  margin-bottom: 16px;
 }
 .cw-stat {
   display: flex;
@@ -83,4 +119,26 @@ const weatherInfo = computed(() => getWeatherInfo(current.value.weather_code))
 .stat-icon { font-size: 1.2rem; }
 .stat-val { font-weight: 600; font-size: 0.95rem; }
 .stat-label { font-size: 0.75rem; color: var(--text-muted); }
+
+.cw-sun {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: 10px;
+}
+.sun-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sun-icon { font-size: 1.8rem; }
+.sun-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sun-label { font-size: 0.75rem; color: var(--text-muted); }
+.sun-time { font-size: 1rem; font-weight: 600; color: var(--text); }
 </style>

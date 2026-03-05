@@ -57,6 +57,7 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useWeather } from './composables/useWeather.js'
 import LocationSearch from './components/LocationSearch.vue'
 import CurrentWeather from './components/CurrentWeather.vue'
@@ -77,7 +78,12 @@ const {
   stormAlerts,
   searchLocations,
   loadWeather,
+  loadLocationFromURL,
 } = useWeather()
+
+onMounted(() => {
+  loadLocationFromURL()
+})
 </script>
 
 <style>
@@ -143,6 +149,7 @@ a { color: var(--accent); }
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px 16px;
+  overflow-x: hidden;
 }
 
 /* Hero */
@@ -191,25 +198,42 @@ a { color: var(--accent); }
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  max-width: 100%;
 }
 
-.full-width { width: 100%; }
+.full-width {
+  width: 100%;
+  max-width: 100%;
+}
 
 .top-grid {
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 20px;
+  width: 100%;
 }
 
 .bottom-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  width: 100%;
 }
 
 @media (max-width: 900px) {
-  .top-grid { grid-template-columns: 1fr; }
-  .bottom-grid { grid-template-columns: 1fr; }
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-main {
+    padding: 16px 12px;
+  }
 }
 
 /* Footer */
