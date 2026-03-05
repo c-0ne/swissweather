@@ -1,5 +1,5 @@
 <template>
-  <div class="storm-alert" v-if="alerts.length">
+  <div class="flex flex-col gap-2" v-if="alerts.length">
     <div
       v-for="(alert, i) in alerts"
       :key="i"
@@ -17,11 +17,6 @@ defineProps({
 </script>
 
 <style scoped>
-.storm-alert {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 .alert-item {
   padding: 12px 16px;
   border-radius: 10px;

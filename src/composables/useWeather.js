@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const BASE_FORECAST = 'https://api.open-meteo.com/v1/forecast'
 const BASE_HISTORICAL = 'https://archive-api.open-meteo.com/v1/archive'
@@ -15,7 +15,7 @@ async function fetchForecast(lat, lon) {
     latitude: lat,
     longitude: lon,
     current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code,apparent_temperature',
-    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weather_code',
+    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weather_code,sunrise,sunset,wind_speed_10m_max',
     hourly: 'temperature_2m,precipitation_probability,precipitation',
     timezone: 'auto',
     forecast_days: '7',
@@ -31,12 +31,38 @@ async function fetchHistorical(lat, lon, date) {
     longitude: lon,
     start_date: date,
     end_date: date,
-    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum',
+    daily: 'temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max,sunrise,sunset',
     timezone: 'auto',
   })
   const res = await fetch(`${BASE_HISTORICAL}?${params}`)
   if (!res.ok) throw new Error('Historical fetch failed')
   return res.json()
+}
+
+function buildLocationFromParams(params) {
+  const lat = parseFloat(params.get('lat'))
+  const lon = parseFloat(params.get('lon'))
+  const name = params.get('name')
+  if (!name || isNaN(lat) || isNaN(lon)) return null
+  return {
+    name,
+    lat,
+    lon,
+    admin1: params.get('admin1') ?? '',
+    country: params.get('country') ?? '',
+  }
+}
+
+function updateURLForLocation(location) {
+  const params = new URLSearchParams({
+    name: location.name,
+    lat: location.lat,
+    lon: location.lon,
+  })
+  if (location.admin1) params.set('admin1', location.admin1)
+  if (location.country) params.set('country', location.country)
+  const newUrl = `${window.location.pathname}?${params.toString()}`
+  window.history.pushState({ location }, '', newUrl)
 }
 
 export function useWeather() {
@@ -67,13 +93,15 @@ export function useWeather() {
     return d.toISOString().split('T')[0]
   }
 
-  async function loadWeather(location) {
+  async function loadWeather(location, { updateUrl = true } = {}) {
     selectedLocation.value = location
     loading.value = true
     error.value = null
     forecast.value = null
     historicalData.value = null
     comparisonData.value = []
+
+    if (updateUrl) updateURLForLocation(location)
 
     try {
       const { lat, lon } = location
@@ -105,6 +133,15 @@ export function useWeather() {
       loading.value = false
     }
   }
+
+  // On mount: check URL params and auto-load location
+  onMounted(() => {
+    const params = new URLSearchParams(window.location.search)
+    const locationFromUrl = buildLocationFromParams(params)
+    if (locationFromUrl) {
+      loadWeather(locationFromUrl, { updateUrl: false })
+    }
+  })
 
   const outdoorScore = computed(() => {
     if (!forecast.value) return null

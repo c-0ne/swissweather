@@ -1,23 +1,33 @@
 <template>
   <div class="week-forecast card">
-    <h3>7-Day Forecast</h3>
+    <h3 class="text-lg font-bold mb-4">7-Day Forecast</h3>
 
-    <div class="daily-list">
+    <div class="flex flex-col gap-2 mb-5">
       <div v-for="(day, i) in days" :key="i" class="day-row">
-        <span class="day-name">{{ day.name }}</span>
-        <span class="day-icon">{{ day.icon }}</span>
-        <span class="day-range">
-          <span class="day-max">{{ day.max }}°</span>
-          <span class="day-min">{{ day.min }}°</span>
+        <span class="day-name font-semibold text-sm w-12 shrink-0">{{ day.name }}</span>
+        <span class="text-xl w-7 text-center shrink-0">{{ day.icon }}</span>
+        <span class="day-range text-sm w-16 shrink-0">
+          <span class="text-orange font-semibold">{{ day.max }}°</span>
+          <span class="text-blue ml-1">{{ day.min }}°</span>
         </span>
-        <div class="day-bar-wrapper">
-          <div class="day-bar" :style="{ width: day.precipPct + '%' }"></div>
+        <!-- Rain probability section -->
+        <div class="flex-1 flex items-center gap-2">
+          <div class="rain-bar-wrapper flex-1">
+            <div
+              class="rain-bar"
+              :style="{ width: day.precipPct + '%' }"
+              :class="rainClasses(day.precipPct).bar"
+            ></div>
+          </div>
+          <span class="rain-pct-label text-xs font-semibold w-8 text-right" :class="rainClasses(day.precipPct).text">
+            {{ day.precipPct }}%
+          </span>
         </div>
-        <span class="day-precip">{{ day.precip }}mm</span>
+        <span class="text-xs text-muted w-12 text-right shrink-0">{{ day.precip }}mm</span>
       </div>
     </div>
 
-    <div class="chart-wrapper">
+    <div class="chart-wrapper rounded-xl overflow-hidden mt-2">
       <AgCharts :options="chartOptions" />
     </div>
   </div>
@@ -49,6 +59,15 @@ const days = computed(() => {
     }
   })
 })
+
+const RAIN_HIGH_THRESHOLD = 70
+const RAIN_MED_THRESHOLD = 40
+
+function rainClasses(pct) {
+  if (pct >= RAIN_HIGH_THRESHOLD) return { bar: 'bg-rain-high', text: 'text-rain-high' }
+  if (pct >= RAIN_MED_THRESHOLD) return { bar: 'bg-rain-med', text: 'text-rain-med' }
+  return { bar: 'bg-rain-low', text: 'text-rain-low' }
+}
 
 const chartOptions = computed(() => {
   const d = props.forecast.daily
@@ -103,18 +122,9 @@ const chartOptions = computed(() => {
 
 <style scoped>
 .week-forecast { padding: 24px; }
-.week-forecast h3 { margin: 0 0 16px; }
-
-.daily-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 20px;
-}
 
 .day-row {
-  display: grid;
-  grid-template-columns: 50px 30px 70px 1fr 40px;
+  display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
@@ -122,30 +132,18 @@ const chartOptions = computed(() => {
   background: var(--bg);
 }
 
-.day-name { font-weight: 600; font-size: 0.9rem; }
-.day-icon { font-size: 1.2rem; text-align: center; }
-.day-range { display: flex; gap: 6px; font-size: 0.85rem; }
-.day-max { color: #f97316; font-weight: 600; }
-.day-min { color: #60a5fa; }
+.text-orange { color: #f97316; }
+.text-blue { color: #60a5fa; }
 
-.day-bar-wrapper {
+.rain-bar-wrapper {
   background: var(--border);
   border-radius: 4px;
-  height: 6px;
+  height: 8px;
   overflow: hidden;
 }
-.day-bar {
+.rain-bar {
   height: 100%;
-  background: #60a5fa;
   border-radius: 4px;
   transition: width 0.4s ease;
-}
-
-.day-precip { font-size: 0.78rem; color: var(--text-muted); text-align: right; }
-
-.chart-wrapper {
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 8px;
 }
 </style>
