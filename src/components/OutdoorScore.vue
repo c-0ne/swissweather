@@ -63,7 +63,7 @@ const scoreLabel = computed(() => {
 
 <style scoped>
 .outdoor-score { padding: 24px; text-align: center; }
-.outdoor-score h3 { margin: 0 0 20px; font-size: 1.1rem; }
+.outdoor-score h3 { margin: 0 0 20px; }
 
 .score-ring-wrapper {
   display: flex;

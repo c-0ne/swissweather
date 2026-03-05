@@ -106,7 +106,7 @@ const chartOptions = computed(() => {
 
 <style scoped>
 .week-forecast { padding: 24px; }
-.week-forecast h3 { margin: 0 0 16px; }
+.week-forecast h3 { margin: 0 0 20px; }
 
 .daily-list {
   display: flex;

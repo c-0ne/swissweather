@@ -98,7 +98,7 @@ const chartOptions = computed(() => {
 
 <style scoped>
 .comparison { padding: 24px; }
-.comparison h3 { margin: 0 0 16px; }
+.comparison h3 { margin: 0 0 20px; }
 
 .comp-chart-wrapper {
   border-radius: 10px;
