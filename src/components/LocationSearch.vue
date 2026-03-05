@@ -1,13 +1,17 @@
 <template>
-  <div class="location-search">
-    <div class="search-wrapper">
-      <span class="search-icon">🔍</span>
+  <div class="relative w-full max-w-lg">
+    <div
+      class="flex items-center bg-card border-2 border-card-border rounded-xl px-3 gap-2 transition-colors"
+      :class="focused ? 'border-accent' : ''"
+    >
+      <span class="text-base opacity-50">🔍</span>
       <input
         v-model="query"
         type="text"
         placeholder="Search for a location..."
-        class="search-input"
+        class="flex-1 border-none outline-none bg-transparent text-slate-100 text-base py-3 placeholder:text-muted"
         @input="onInput"
+        @focus="focused = true"
         @keydown.down.prevent="highlightNext"
         @keydown.up.prevent="highlightPrev"
         @keydown.enter.prevent="selectHighlighted"
@@ -15,21 +19,22 @@
         @blur="onBlur"
         autocomplete="off"
       />
-      <span v-if="loading" class="spinner">⟳</span>
+      <span v-if="loading" class="animate-spin inline-block text-lg opacity-60">⟳</span>
     </div>
-    <ul v-if="results.length" class="dropdown" ref="dropdownEl">
+
+    <ul v-if="results.length" class="dropdown-list" ref="dropdownEl">
       <li
         v-for="(r, i) in results"
         :key="r.id ?? i"
-        :class="['dropdown-item', { highlighted: i === highlightedIndex }]"
+        :class="['dropdown-item', { 'highlighted': i === highlightedIndex }]"
         @mousedown.prevent="selectResult(r)"
         @mouseover="highlightedIndex = i"
       >
-        <span class="loc-name">{{ r.name }}</span>
-        <span class="loc-meta">{{ [r.admin1, r.country].filter(Boolean).join(', ') }}</span>
+        <span class="font-semibold text-slate-100">{{ r.name }}</span>
+        <span class="text-xs text-muted">{{ [r.admin1, r.country].filter(Boolean).join(', ') }}</span>
       </li>
     </ul>
-    <p v-if="noResults" class="no-results">No results found.</p>
+    <p v-if="noResults" class="no-results-box">No results found.</p>
   </div>
 </template>
 
@@ -48,6 +53,7 @@ const results = ref([])
 const loading = ref(false)
 const noResults = ref(false)
 const highlightedIndex = ref(-1)
+const focused = ref(false)
 const dropdownEl = ref(null)
 
 let debounceTimer = null
@@ -80,6 +86,7 @@ function closeDropdown() {
 }
 
 function onBlur() {
+  focused.value = false
   setTimeout(closeDropdown, 150)
 }
 
@@ -108,44 +115,7 @@ function selectResult(r) {
 </script>
 
 <style scoped>
-.location-search {
-  position: relative;
-  max-width: 480px;
-  margin: 0 auto;
-}
-.search-wrapper {
-  display: flex;
-  align-items: center;
-  background: var(--card-bg);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 0 14px;
-  gap: 8px;
-  transition: border-color 0.2s;
-}
-.search-wrapper:focus-within {
-  border-color: var(--accent);
-}
-.search-icon { font-size: 1rem; opacity: 0.5; }
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: var(--text);
-  font-size: 1rem;
-  padding: 14px 0;
-}
-.search-input::placeholder { color: var(--text-muted); }
-.spinner {
-  animation: spin 1s linear infinite;
-  display: inline-block;
-  font-size: 1.1rem;
-  opacity: 0.6;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.dropdown {
+.dropdown-list {
   position: absolute;
   top: calc(100% + 6px);
   left: 0; right: 0;
@@ -159,6 +129,7 @@ function selectResult(r) {
   max-height: 300px;
   overflow-y: auto;
 }
+
 .dropdown-item {
   display: flex;
   justify-content: space-between;
@@ -168,13 +139,13 @@ function selectResult(r) {
   cursor: pointer;
   gap: 8px;
 }
+
 .dropdown-item.highlighted,
 .dropdown-item:hover {
   background: var(--accent-soft);
 }
-.loc-name { font-weight: 600; color: var(--text); }
-.loc-meta { font-size: 0.8rem; color: var(--text-muted); }
-.no-results {
+
+.no-results-box {
   position: absolute;
   top: calc(100% + 6px);
   left: 0; right: 0;
@@ -185,5 +156,6 @@ function selectResult(r) {
   color: var(--text-muted);
   font-size: 0.9rem;
   text-align: center;
+  margin: 0;
 }
 </style>

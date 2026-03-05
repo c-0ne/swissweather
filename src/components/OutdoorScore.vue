@@ -1,7 +1,7 @@
 <template>
-  <div class="outdoor-score card">
-    <h3>Should I go out today?</h3>
-    <div class="score-ring-wrapper">
+  <div class="outdoor-score card p-6 text-center">
+    <h3 class="text-base font-bold mb-5">Should I go out today?</h3>
+    <div class="flex flex-col items-center gap-2 mb-5">
       <svg class="score-ring" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <circle class="ring-bg" cx="60" cy="60" r="50" />
         <circle
@@ -11,19 +11,19 @@
         />
         <text x="60" y="65" text-anchor="middle" class="score-text">{{ score.score }}</text>
       </svg>
-      <span class="score-label" :style="{ color: scoreColor }">{{ scoreLabel }}</span>
+      <span class="font-semibold text-sm" :style="{ color: scoreColor }">{{ scoreLabel }}</span>
     </div>
 
-    <div class="recommendations">
-      <div :class="['rec', score.umbrella ? 'active' : 'inactive']">
+    <div class="flex flex-col gap-2 text-left">
+      <div :class="['rec', score.umbrella ? 'rec-active' : 'rec-inactive']">
         <span>☂️</span>
         <span>{{ score.umbrella ? 'Bring umbrella' : 'No umbrella needed' }}</span>
       </div>
-      <div :class="['rec', score.sunscreen ? 'active' : 'inactive']">
+      <div :class="['rec', score.sunscreen ? 'rec-active' : 'rec-inactive']">
         <span>🧴</span>
         <span>{{ score.sunscreen ? 'Wear sunscreen' : 'No sunscreen needed' }}</span>
       </div>
-      <div :class="['rec', score.jacket ? 'active' : 'inactive']">
+      <div :class="['rec', score.jacket ? 'rec-active' : 'rec-inactive']">
         <span>🧥</span>
         <span>{{ score.jacket ? 'Bring a jacket' : 'No jacket needed' }}</span>
       </div>
@@ -62,17 +62,6 @@ const scoreLabel = computed(() => {
 </script>
 
 <style scoped>
-.outdoor-score { padding: 24px; text-align: center; }
-.outdoor-score h3 { margin: 0 0 20px; font-size: 1.1rem; }
-
-.score-ring-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
 .score-ring {
   width: 130px;
   height: 130px;
@@ -101,34 +90,22 @@ const scoreLabel = computed(() => {
   transform-origin: 60px 60px;
 }
 
-.score-label {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.recommendations {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-}
-
 .rec {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
 }
 
-.rec.active {
+.rec-active {
   background: var(--accent-soft);
   color: var(--accent);
 }
 
-.rec.inactive {
+.rec-inactive {
   background: var(--bg);
   color: var(--text-muted);
   opacity: 0.6;

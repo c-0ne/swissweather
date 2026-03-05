@@ -1,34 +1,45 @@
 <template>
   <div class="current-weather card">
-    <div class="cw-header">
-      <div class="cw-location">
-        <h2>{{ location.name }}</h2>
-        <span class="cw-sub">{{ [location.admin1, location.country].filter(Boolean).join(', ') }}</span>
+    <div class="flex justify-between items-start">
+      <div>
+        <h2 class="text-2xl font-bold m-0">{{ location.name }}</h2>
+        <span class="text-sm text-muted">{{ [location.admin1, location.country].filter(Boolean).join(', ') }}</span>
       </div>
-      <div class="cw-icon">{{ weatherInfo.icon }}</div>
+      <div class="text-5xl leading-none">{{ weatherInfo.icon }}</div>
     </div>
-    <p class="cw-desc">{{ weatherInfo.label }}</p>
+    <p class="text-muted text-sm mt-1 mb-4">{{ weatherInfo.label }}</p>
 
-    <div class="cw-temp">
-      <span class="temp-main">{{ Math.round(current.temperature_2m) }}°C</span>
-      <span class="temp-feels">Feels like {{ Math.round(current.apparent_temperature) }}°C</span>
+    <div class="flex items-baseline gap-3 mb-5">
+      <span class="text-6xl font-bold text-accent leading-none">{{ Math.round(current.temperature_2m) }}°C</span>
+      <span class="text-sm text-muted">Feels like {{ Math.round(current.apparent_temperature) }}°C</span>
     </div>
 
-    <div class="cw-grid">
-      <div class="cw-stat">
-        <span class="stat-icon">💨</span>
-        <span class="stat-val">{{ current.wind_speed_10m }} km/h</span>
-        <span class="stat-label">Wind</span>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="stat-tile">
+        <span class="text-xl">💨</span>
+        <span class="font-semibold text-sm">{{ current.wind_speed_10m }} km/h</span>
+        <span class="text-xs text-muted">Wind</span>
       </div>
-      <div class="cw-stat">
-        <span class="stat-icon">🌧️</span>
-        <span class="stat-val">{{ current.precipitation }} mm</span>
-        <span class="stat-label">Rain</span>
+      <div class="stat-tile">
+        <span class="text-xl">🌧️</span>
+        <span class="font-semibold text-sm">{{ current.precipitation }} mm</span>
+        <span class="text-xs text-muted">Rain</span>
       </div>
-      <div class="cw-stat">
-        <span class="stat-icon">💧</span>
-        <span class="stat-val">{{ current.relative_humidity_2m }}%</span>
-        <span class="stat-label">Humidity</span>
+      <div class="stat-tile">
+        <span class="text-xl">💧</span>
+        <span class="font-semibold text-sm">{{ current.relative_humidity_2m }}%</span>
+        <span class="text-xs text-muted">Humidity</span>
+      </div>
+    </div>
+
+    <div v-if="sunriseTime || sunsetTime" class="flex gap-4 pt-3 border-t border-card-border">
+      <div v-if="sunriseTime" class="flex items-center gap-2 text-sm text-muted">
+        <span class="text-base">🌅</span>
+        <span>Sunrise <strong class="text-slate-100">{{ sunriseTime }}</strong></span>
+      </div>
+      <div v-if="sunsetTime" class="flex items-center gap-2 text-sm text-muted">
+        <span class="text-base">🌇</span>
+        <span>Sunset <strong class="text-slate-100">{{ sunsetTime }}</strong></span>
       </div>
     </div>
   </div>
@@ -45,33 +56,24 @@ const props = defineProps({
 
 const current = computed(() => props.forecast.current)
 const weatherInfo = computed(() => getWeatherInfo(current.value.weather_code))
+
+function formatLocalTime(isoString) {
+  if (!isoString) return null
+  try {
+    const date = new Date(isoString)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return null
+  }
+}
+
+const sunriseTime = computed(() => formatLocalTime(props.forecast.daily?.sunrise?.[0]))
+const sunsetTime = computed(() => formatLocalTime(props.forecast.daily?.sunset?.[0]))
 </script>
 
 <style scoped>
 .current-weather { padding: 24px; }
-.cw-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-.cw-location h2 { margin: 0; font-size: 1.4rem; }
-.cw-sub { font-size: 0.85rem; color: var(--text-muted); }
-.cw-icon { font-size: 3rem; }
-.cw-desc { margin: 4px 0 16px; color: var(--text-muted); font-size: 0.95rem; }
-.cw-temp {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.temp-main { font-size: 3.5rem; font-weight: 700; color: var(--accent); line-height: 1; }
-.temp-feels { font-size: 0.9rem; color: var(--text-muted); }
-.cw-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-.cw-stat {
+.stat-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -80,7 +82,4 @@ const weatherInfo = computed(() => getWeatherInfo(current.value.weather_code))
   padding: 12px 8px;
   gap: 4px;
 }
-.stat-icon { font-size: 1.2rem; }
-.stat-val { font-weight: 600; font-size: 0.95rem; }
-.stat-label { font-size: 0.75rem; color: var(--text-muted); }
 </style>
